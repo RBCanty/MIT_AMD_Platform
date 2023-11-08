@@ -1,0 +1,80 @@
+rule_id,rule_set,description,smarts,rule_set_name,priority,max
+56,2,> 2 ester groups,"C(=O)O[C,H1].C(=O)O[C,H1].C(=O)O[C,H1]",Dundee,4,0
+58,2,acid halide,"C(=O)[Cl,Br,I,F]",Dundee,4,0
+61,2,acyl hydrazine,C(=O)N[NH2],Dundee,4,0
+63,2,Aliphatic long chain,[R0;D2][R0;D2][R0;D2][R0;D2],Dundee,4,0
+65,2,amidotetrazole,c1nnnn1C=O,Dundee,4,0
+67,2,azepane,[CH2R2]1N[CH2R2][CH2R2][CH2R2][CH2R2][CH2R2]1,Dundee,4,0
+68,2,Azido group,N=[N+]=[N-],Dundee,4,0
+69,2,Azo group,N#N,Dundee,4,0
+70,2,azocane,[CH2R2]1N[CH2R2][CH2R2][CH2R2][CH2R2][CH2R2][CH2R2]1,Dundee,4,0
+72,2,beta-keto/anhydride,"[C,c](=O)[CX4,CR0X3,O][C,c](=O)",Dundee,4,0
+74,2,Carbocation/anion,"[C+,c+,C-,c-]",Dundee,4,0
+76,2,charged oxygen or sulfur atoms,"[O+,o+,S+,s+]",Dundee,4,0
+80,2,crown ether,"[OR2,NR2]@[CR2]@[CR2]@[OR2,NR2]@[CR2]@[CR2]@[OR2,NR2]",Dundee,4,0
+85,2,cycloheptane,[CR2]1[CR2][CR2][CR2][CR2][CR2][CR2]1,Dundee,4,0
+86,2,cycloheptane,[CR2]1[CR2][CR2]cc[CR2][CR2]1,Dundee,4,0
+87,2,cyclooctane,[CR2]1[CR2][CR2][CR2][CR2][CR2][CR2][CR2]1,Dundee,4,0
+88,2,cyclooctane,[CR2]1[CR2][CR2]cc[CR2][CR2][CR2]1,Dundee,4,0
+92,2,diazo group,"[$([#6]=[N+]=[N-]),$([#6-]-[N+]#[N])]",Dundee,4,0
+93,2,diketo group,"[C,c](=O)[C,c](=O)",Dundee,4,0
+94,2,disulphide,SS,Dundee,4,0
+96,2,ester of HOBT,C(=O)Onnn,Dundee,4,0
+97,2,four member lactones,C1(=O)OCC1,Dundee,4,0
+98,2,halogenated ring,"c1cc([Cl,Br,I,F])cc([Cl,Br,I,F])c1[Cl,Br,I,F]",Dundee,4,0
+99,2,halogenated ring,"c1ccc([Cl,Br,I,F])c([Cl,Br,I,F])c1[Cl,Br,I,F]",Dundee,4,0
+101,2,het-C-het not in ring,"[NX3R0,NX4R0,OR0,SX2R0][CX4][NX3R0,NX4R0,OR0,SX2R0]",Dundee,4,0
+103,2,hydrazine,N[NH2],Dundee,4,0
+106,2,imine,C=[N!R],Dundee,4,0
+107,2,imine,"N=[CR0][N,n,O,S]",Dundee,4,0
+108,2,iodine,I,Dundee,4,0
+110,2,isolated alkene,"[$([CH2]),$([CH][CX4]),$(C([CX4])[CX4])]=[$([CH2]),$([CH][CX4]),$(C([CX4])[CX4])]",Dundee,4,0
+111,2,ketene,C=C=O,Dundee,4,0
+112,2,"methylidene-1,3-dithiole",S1C=CSC1=S,Dundee,4,0
+118,2,N oxide,"[NX2,nX3][OX1]",Dundee,4,0
+119,2,"N-acyl-2-amino-5-mercapto-1,3,4-thiadiazole",s1c(S)nnc1NC=O,Dundee,4,0
+121,2,N-halo,"[NX3,NX4][F,Cl,Br,I]",Dundee,4,0
+122,2,N-hydroxyl pyridine,n[OH],Dundee,4,0
+124,2,N-nitroso,[#7]-N=O,Dundee,4,0
+125,2,oxime,"[C,c]=N[OH]",Dundee,4,0
+126,2,oxime,"[C,c]=NOC=O",Dundee,4,0
+127,2,Oxygen-nitrogen single bond,"[$([#7+][OX1-]),$([#7v5]=[OX1]);!$([#7](~[O])~[O]);!$([#7]=[#7])]",Dundee,4,0
+128,2,perfluorinated chain,[CX4](F)(F)[CX4](F)F,Dundee,4,0
+129,2,peroxide,OO,Dundee,4,0
+132,2,phosphor,P,Dundee,4,0
+141,2,saponine derivative,O1CCCCC1OC2CCC3CCCCC3C2,Dundee,4,0
+142,2,silicon halogen,"[Si][F,Cl,Br,I]",Dundee,4,0
+147,2,sulfonyl cyanide,S(=O)(=O)C#N,Dundee,4,0
+148,2,sulfur oxygen single bond,[SX2]O,Dundee,4,0
+149,2,sulphate,OS(=O)(=O)[O-],Dundee,4,0
+150,2,Sulphur-nitrogen single bond,[SX2H0][N],Dundee,4,0
+157,2,Three-membered heterocycle,"*1[O,S,N]*1",Dundee,4,0
+159,2,triphenyl methylsilyl,"[SiR0](c1ccccc1)(c2ccccc2)(c3ccccc3)",Dundee,4,0
+160,2,triple bond,C#C,Dundee,4,0
+1200,8,"Si,B,Se atoms","[Si,B,Se]",LINT,2,0
+1202,8,poly ethers,O[CH2][CH2]O-!@[CH2][CH2]O,LINT,2,0
+1205,8,ugly P compounds,"P(=[O,S])[C,N]([C,N])[C,N]",LINT,2,0
+1207,8,acyclic N-C-N,N-!@[CX4]-!@N,LINT,2,0
+1208,8,acyclic N-S,N-!@[SX2]-*,LINT,2,0
+1211,8,"1,2-dicarbonyl not in ring",O=[CX3]-!@[CX3]=O,LINT,2,0
+1215,8,acyl halide,"O=C-[F,Cl,Br,I]",LINT,2,0
+1217,8,alpha halo carbonyl,"O=C-C-[F,Cl,Br,I]",LINT,2,0
+1218,8,sufonyl halide,"S(=O)(=O)-[F,Cl,Br,I]",LINT,2,0
+1219,8,N:C-SCH2 groups,[ND1]=C-!@[SX2]-[CH2D2],LINT,2,0
+1221,8,terminal vinyl,[CH2D1]=[CD2]-!@*,LINT,2,0
+1222,8,28,S=P~*,LINT,2,0
+1225,8,thionyl,[Sv4](=O)(-!@[!#1])-!@[!#1],LINT,2,0
+1226,8,n-haloamines,"N-[F,Cl,Br,I]",LINT,2,0
+1231,8,"long aliphatic chain, 6+",[CH2][CH2][CH2]-!@[CH2][CH2][CH2],LINT,2,0
+1233,8,acyclic C=C-O,C=C-!@O-*,LINT,2,0
+1234,8,acyclic C=N-H,[NH1X2]=[C!R;!$(C(-N)(=[NH1])-N)],LINT,2,0
+1235,8,acyclic NO not nitro,O-!@[N;!$(N(=O)=O);!$([N+](=O)[O-])],LINT,2,0
+1236,8,42,S-S,LINT,2,0
+1237,8,43,O~O,LINT,2,0
+1238,8,thioester,C-C(=O)[SD2],LINT,2,0
+1239,8,aziridine-like N in 3-membered ring,N~1~*~*1,LINT,2,0
+1240,8,epoxides,O~1C~*1,LINT,2,0
+1241,8,aryl iodide,I-c:*,LINT,2,0
+1246,8,adamantyl,C12CC3CC(C1)CC(C2)C3,LINT,2,0
+1250,8,chlorates,Cl~O,LINT,2,0
+1251,8,high halogen content (>3),"[F,Cl,Br,I].[F,Cl,Br,I].[F,Cl,Br,I].[F,Cl,Br,I]",LINT,2,0

@@ -1,0 +1,66 @@
+# In order to make the input somewhat straightforward I have attempted to make something of a standard layout
+# This layout is subject to change as the workflows are developed
+# The general structure of the input is a dictionary (below is in YAML format)
+
+
+campaign_name: testing_campaign                       # The campaign name needs to be unique
+workflow_type: photochemistry                         # This defines what workflow template type to use
+wellplate_grouping:
+  reaction_plate_1:                                   # More than one plate can be made per campaign
+    workflow_details:                                 # These are details that are specifically used for the workflow
+      incubation_time: 600
+      reaction_time: 21600
+      stabilization_time: 600
+      reaction_temperature: 20
+      intermediate_purification: true
+      separate_hplc_plate: false
+      untargeted_hplc_analysis: photochemistry
+      wellplate_type: 96 Well Microplate
+    reaction_grouping:                                # These are reaction groupings made by another code
+      reaction_1:                                     # Reaction wells can be specified by a general string
+        catalysts:                                    # The different chemical types are defined separately
+        - - some_photocatalyst                        # Chemical name or chemical SMILES in the platform database
+          - 1.0e-6                                    # Number of moles to add (volume determined based on concentration)
+          - 2                                         # Dispensing sequence to add the chemical reagent
+        reactants:
+        - - some_reactant
+          - 1.0e-5
+          - 1
+        - - another_reactant
+          - 1.0e-5
+          - 1
+        reagents:
+        - - some_base
+          - 1.0e-6
+          - 1
+        solvents:
+        - - some_solvent                            # Chemical name or chemical SMILES in the database
+          - 1                                       # Equivalents of solvent (volume determined by total volume)
+          - 1                                       # Dispensing sequence to add the solvent (added before reagents)
+        - - another_solvent                         # Additional solvents can be added
+          - 1
+          - 1
+        total_volume: 200                           # Total reaction volume (considers volume from reagents)
+      A1:                                           # Can also have well keys (A1, B1,...) which take priority
+        catalysts:
+          - - test_photocatalyst
+            - 1.0e-6
+            - 2
+          reactants:
+            - - test_reactant
+              - 1.0e-5
+              - 1
+            - - test_reactant_2
+              - 1.0e-5
+              - 1
+          reagents:
+            - - some_base
+              - 1.0e-6
+              - 1
+          solvents:
+            - - CCCCCC
+              - 1
+              - 1
+            - - CCO
+              - 1
+              - 1

@@ -1,0 +1,31 @@
+askcos_params:
+    tree_builder:
+        max_depth: 6
+        max_branching: 20
+        expansion_time: 30
+        template_count: 1000
+        max_cum_prob: 0.99
+        filter_threshold: 0.1
+        template_prioritizer_version: 0
+        template_prioritizers: 
+            - attribute_filter: []
+              template_set: 'pistachio:ringbreaker'
+              version: '1'
+            - attribute_filter: []
+              template_set: pistachio
+              version: '1'
+            - attribute_filter: []
+              template_set: reaxys
+              version: '1'
+        chemical_popularity_logic: or
+        min_chempop_reactants: 10
+        min_chempop_products: 10
+        return_first: false
+        max_trees: 3
+    context_builder:
+        return_scores: true
+    context_cleaner: false
+template_expansion:
+    template_expansion: true
+    new_reagents_to_consider: 500
+    expansion_price_cutoff: 15

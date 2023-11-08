@@ -1,0 +1,23 @@
+>> Adjusted water free dispense << 10	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 11	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 12	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 13	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 14	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 15	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 16	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 17	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 18	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 19	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 20	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 21	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 22	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 23	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 24	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 25	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 26	General liquid class for most pipetting devices and tip types
+>> Adjusted water free dispense << 27	General liquid class for most pipetting devices and tip types
+>> Water free dispense << 7	General liquid class for most pipetting devices and tip types
+>> Water free dispense << 8	General liquid class for most pipetting devices and tip types
+>> Water free dispense << 9	General liquid class for most pipetting devices and tip types
+Adjusted water free dispense	General liquid class for most pipetting devices and tip types
+Adjusted Water free dispense DiTi 200 Clear	Liquid class for Clear DiTi 200 -> aspiration at z-max

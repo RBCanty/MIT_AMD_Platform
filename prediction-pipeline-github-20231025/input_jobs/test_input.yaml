@@ -1,0 +1,104 @@
+job_status:
+    in_progress: true
+    new_askcos_information: true
+molecular_generation:
+    generate_molecules: true
+    model_type: rationale
+    num_decodes: 200
+    scaffolds:
+    - 'Nc1cccc2c-3nc4ccccc4sc-3[cH:1]c(=O)c12'
+reaction_planning:
+  planning_type: askcos
+  context_correction: false
+  askcos_params:
+    context_builder:
+      return_scores: true
+    tree_builder:
+      expansion_time: 60
+      filter_threshold: 0.1
+      max_branching: 20
+      max_cum_prob: 0.999
+      max_depth: 4
+      max_trees: 3
+      return_first: false
+      template_count: 10000
+      template_prioritizers: 
+        - attribute_filter: []
+          template_set: 'pistachio:ringbreaker'
+          version: '1'
+        - attribute_filter: []
+          template_set: pistachio
+          version: '1'
+        - attribute_filter: []
+          template_set: reaxys
+          version: '1'
+reagent_information:
+  reagent_origin: restricted
+  reagent_sources:
+  - in_lab
+  - ambeed
+  - chemistry
+  price_cutoff: 5
+  chemistry_chemicals_limit: 20
+  reagents_budget: 500
+pathway_expansion:
+    pathway_expansion: true
+    expansion_method: templates
+    new_reagents_to_consider: 200
+    expansion_price_cutoff: 50
+chemprop_details:
+  constraining_models:
+    uv_vis:
+      solvent: C(Cl)Cl
+      center: 500
+      range: 200
+      type: max
+      model_version: uv_vis_model_v5
+    photodeg:
+      center: -5
+      range: 2
+      type: min
+      model_version: round4
+    logp:
+      center: 4
+      range: 4
+      type: min
+      model_version: round4_splits
+grouping_information:
+    method: normal
+    scaffolds:
+    - 'O=c(cc(s1)c2nc3c1cccc3)c4c2cccc4'
+    pre_filtering: true
+    tree_depth_limit: 1
+    tree_rank_limit: 3
+    scaffolds_grouping: true
+    allowed_temperatures:
+    - 0
+    - 200
+    temperature_spacing: 10
+    number_of_plates: 2
+    max_grouping_iterations: 35
+    max_plating_iterations: 100
+    number_of_targets_per_group: 50
+    uncertainty:
+      consider: true
+      method: exploitation
+      number_of_reactions_per_plate: 10
+    sa_score:
+    - true
+    - min
+    diversity:
+    - false
+    - max
+    additional_atom_number_ranking: true
+    queue_details:
+       workflow_type: standard
+       preparation_scale: 0.000002
+characterization_needed:
+    characterization_1:
+      measurements:
+         uv_vis:
+         photodeg:
+      plate_solvent:
+      - - CN(C)C=O
+        - 1
