@@ -1,0 +1,22 @@
+VARIABLES SECTION
+
+STRING <Path> ='';
+STRING <File Name> = '';
+STRING <Out File> = '';
+STRING <out path> = '';
+STRING <xpm file> = '';
+STRING <xpm path> = '';
+FILE <$ResultFile 1> = AB;
+
+PROGRAM SECTION
+
+UserDialog ('passing', STANDARD, EDIT:'<out path>', EDIT:'<Out File>', EDIT:'<xpm file>', EDIT:'<xpm path>', BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK);
+REM Show a User Dialog for entering name and path
+REM Load the specified file, use variables for path and name
+REM Process the loaded file
+<$ResultFile 1> = MeasureSample (0, {EXP='<xpm file>', XPP='<xpm path>', NAM='<Out File>', PTH='<out path>', SNM='<xpm file>'});
+Unload ([<$ResultFile 1>:AB], {});
+
+PARAMETER SECTION
+
+ 

@@ -1,0 +1,21 @@
+HTS_Default:
+  inside_home_location:
+  - 0
+  - '6.5880E+04'
+  outside_location:
+  - '2.7500E+05'
+  - '6.5880E+04'
+paths/files:
+  datapath: C:\Users\kfj_AMD_FTIR\Desktop\FTIR Datasets\data\
+  macrofile: RUNXPM3.MTX
+  macrofilespath: C:\Users\kfj_AMD_FTIR\PycharmProjects\AMD_Control_Platform\venv\Shell_SP\FTIR_API\macros\
+  opusexefile: opus.exe
+  opusexepath: C:\Program Files (x86)\Bruker\OPUS_8.2.28\
+  python_log_path: C:\Users\kfj_AMD_FTIR\Desktop\FTIR Datasets\logs\
+  referencepath: C:\Users\kfj_AMD_FTIR\PycharmProjects\AMD_Control_Platform\venv\Shell_SP\FTIR_API\references\
+  schedulespath: C:\Users\kfj_AMD_FTIR\PycharmProjects\AMD_Control_Platform\venv\Shell_SP\FTIR_API\schedules\
+  wellpositionpath: C:\Users\kfj_AMD_FTIR\PycharmProjects\AMD_Control_Platform\venv\Shell_SP\FTIR_API\si_well_positions.yaml
+  xpmpath: C:\Users\kfj_AMD_FTIR\PycharmProjects\AMD_Control_Platform\venv\Shell_SP\FTIR_API\xpms\
+startup:
+  code_test_mode: '0'
+  simulator_mode: '0'

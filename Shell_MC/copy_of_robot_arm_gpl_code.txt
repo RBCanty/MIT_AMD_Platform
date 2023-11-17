@@ -1,0 +1,674 @@
+'Created: 7/16/2021 1:14:24 PM
+Module GPL
+	'Main runs constantly, listening for commands through socket ####, and answering as needed
+    Public Sub MAIN
+		Robot.Attached = 1
+		
+		'location key:
+			' Lh = liquid_handler (0-6)
+			' as = LC_autosampler
+			' fc = fraction_collector (0-2)
+			' Fs = FTIR_spectroscopy
+			' Th = thermal_reactor
+			' Ph = photo_reactor
+			' Ss = Storage shell
+			' tr = thermal film reactor
+			' ts = thermal film storage (0-3)
+			' Na = NMR_autosampler
+			' Nr = NMR_rack (0-2)
+			' Nw = NMR_wellplate (for flipping the NMR rack) (0-1)
+			' Ng = NMR tube handling tool
+			' XX = nowhere/global safe position
+		'numbered locations are 0 indexed, with index immediately following location code
+		Controller.PowerEnabled = True
+		' Testing moves without the MCN
+		'parse_and_move("Lh6 to as")
+		'parse_and_move("as to Lh6")
+		
+		'Some logic that continuously listens for commands from the MCN... see Tim's code
+		Dim sendmsg As String = ""
+		Dim exc1 As New Exception
+		
+		'Declarations related to receiving commands through socket
+		Dim connect As Boolean = False
+		Dim ip As New IPEndPoint("", 8082)
+		Dim tl As New TcpListener(ip)
+		Dim armsocket As Socket
+		Dim startloop As Boolean = True
+		
+		While startloop
+			tl.Start()
+			While Not tl.Pending()
+				Thread.Sleep(5000)
+			End While
+			Console.WriteLine("Connection request....")
+			armsocket = tl.AcceptSocket()
+			tl.Stop()
+		
+			connect = True
+			While connect
+				Dim length As Integer
+				Dim recmsg As String
+				length = armsocket.Receive(recmsg, 1024)
+				
+				If Len(recmsg) = 0 Then
+					'Indicates timeout(?), attempt reconnect(?)
+					connect = False
+				End If
+				
+				recmsg = recmsg.Trim()
+				'Console.WriteLine(Asc(recmsg.Substring(1,1)))
+				
+				'DANGER, This has been causing issues, DISABLED
+				If recmsg = "Stop" Then
+					'Controller.PowerEnabled = False
+					sendmsg = "Stopped"
+					
+				ElseIf recmsg = "Initialize" Then
+					Try
+						Controller.PowerEnabled = True
+						Robot.Home
+						Console.WriteLine("Robot Ready")
+						sendmsg = "Initialized"
+					Catch exc1
+						sendmsg = "E_Ra_robot_not_connected "
+					End Try
+				ElseIf Asc(recmsg) = 0 Then
+					'You've received a null message...
+					' Do not pass GO, do not collect $200
+					sendmsg = "Stop"
+				Else
+					sendmsg = parse_and_move(recmsg)
+				End If
+				armsocket.Send(sendmsg)
+			End While
+		End While
+	End Sub
+		
+		
+	Public Function parse_and_move (ByVal cmdmsg As String) As String
+		Dim sendmsg As String = ""
+		Dim exc2 As New Exception
+		'cmdmsg = cmdmsg.Trim()
+		'Try to parse received command into two locations (source and destination)
+		' A command should be formatted as "aa# bb cc#"
+		Try
+			Dim parts() As String
+			parts = cmdmsg.Split(" ")
+			Dim parsedNum As Integer = parts.Length
+	
+			Dim srce As String = parts(0)
+			Dim barcodeScan As String = parts(1)
+			Dim dest As String = parts(2)
+			'For indexed locations 
+			Dim srceIdx As Integer = CInt(srce.Substring(2,1))
+			srce = srce.Substring(0,2)
+			Dim destIdx As Integer = CInt(dest.Substring(2,1))
+			dest = dest.Substring(0,2)
+			
+			Dim barcode As Boolean = False
+			If String.Compare("bc ", barcodeScan) = 1 Then
+				barcode = True
+			End If
+			
+			'Check that the source and destination are valid addresses
+			If Not(parsedNum = 3) Then
+				'sendmsg = "E_Ra_invalid_command"
+			End If
+			'location key:
+			' Lh = liquid_handler (0-6)
+			' as = LC_autosampler
+			' fc = fraction_collector (0-2)
+			' Fs = FTIR_spectroscopy
+			' Th = thermal_reactor
+			' Ph = photo_reactor
+			' Ss = Storage shell
+			' tr = thermal film reactor
+			' ts = thermal film storage (0-3)
+			' Na = NMR_autosampler
+			' Nr = NMR_rack (0-2)
+			' Nw = NMR_wellplate (for flipping the NMR rack) (0-1)
+			' Ng = NMR tube handling tool
+			' XX = nowhere/safe position
+			Dim validLocs As String = "Lh as fc Fs Th Ph Ss tr ts Na Nr Nw Ng XX"
+			If validLocs.IndexOf(srce) < 0 Then
+				sendmsg = "E_Ra_invalid source"
+			End If
+			If validLocs.IndexOf(dest) < 0 Then
+				sendmsg = "E_Ra_invalid_destination"
+			End If
+		Catch exc2
+			sendmsg = "E_Ra Command not parsed correctly: " & exc2.Message
+			Console.WriteLine(sendmsg)
+			Console.WriteLine(cmdmsg)
+			Return sendmsg
+		End Try
+		If Len(sendmsg) > 0 Then
+			Console.WriteLine(sendmsg)
+			Return sendmsg
+		End If
+		
+		'Try and move the plate
+		Try
+			Console.WriteLine("Attempting " & cmdmsg)
+			move_plate(srce, srceIdx, dest, destIdx, barcode)
+		Catch exc2
+			Console.WriteLine(exc2.Message)
+			sendmsg = "E_Ra_failed: " & cmdmsg & ", " & exc2.Message
+			Return sendmsg
+		End Try
+		
+		sendmsg = "S_" & cmdmsg
+		Console.WriteLine(sendmsg)
+		Return sendmsg
+	End Function
+		
+	'Moves a plate from srce(srceIdx) to dest(destIdx)	
+	  ' would be nice to have some awareness of handedness of current configuration, for now clunky moves between LPX and FRC
+	Public Sub move_plate(srce As String, srceIdx As Integer, dest As String, destIdx As Integer, barcode As Boolean)
+		Move.Loc(safe,fast_motion)
+		Select srce
+			Case "Lh"
+				OpenGrip()
+				If srceIdx = 7 Then
+					Move.Loc(NMR_to_Lh(3), fast_motion)
+					Move.WaitForEOM
+					Move.Loc(NMR_to_Lh(5), slow_motion)
+					Move.WaitForEOM
+					CloseGrip()
+					Dim iter0 As Integer
+					For iter0 = 4 To 0 Step -1
+						Move.Loc(NMR_to_Lh(iter0), slow_motion)
+						Move.WaitForEOM
+					Next iter0
+					OpenGripFull()
+					Move.Loc(NMR_plate_change_safe(0), slow_motion)
+					Move.Loc(NMR_plate_change_intermediate, fast_motion)
+				Else
+					Move.Loc(LH_approach(srceIdx),fast_motion)
+					Move.Loc(LH_above(srceIdx),slow_motion)
+					Move.Loc(LH_get(srceIdx),slow_motion)
+					Move.WaitForEOM
+					CloseGrip()
+					Move.Loc(LH_above(srceIdx),slow_motion)
+					Move.Loc(LH_approach(srceIdx),slow_motion)
+					If barcode Then
+						ReadBarcode()
+					End If
+					Move.Loc(change_grip_LH_above,fast_motion)
+					Move.Loc(change_grip_LH_get,slow_motion)
+					Move.WaitForEOM
+					OpenGrip()
+				End If
+			
+			Case "as"
+				OpenGrip()
+				Move.Loc(change_grip_LC_above, fast_motion)
+				Move.Loc(HPLC_approach,fast_motion)
+				Move.Loc(HPLC_above,slow_motion)
+				Move.Loc(HPLC_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(HPLC_above,slow_motion)
+				Move.Loc(HPLC_approach,slow_motion)
+				If barcode Then
+					ReadBarcode()
+				End If
+				Move.Loc(change_grip_LC_above,fast_motion)
+				Move.Loc(change_grip_LC_get,slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+			
+			Case "fc"
+				OpenGrip()
+				LeftyToRighty()
+				Move.Loc(FRC_approach,fast_motion)
+				Move.Loc(FRC_above(srceIdx),slow_motion)
+				Move.Loc(FRC_get(srceIdx),slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(FRC_above(srceIdx),slow_motion)
+				Move.Loc(FRC_approach,fast_motion)
+				RightyToLefty()
+				If barcode Then
+					ReadBarcode()
+				End If
+				Move.Loc(change_grip_FRC_above,fast_motion)
+				Move.Loc(change_grip_FRC_get,slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				
+			Case "Fs"
+				OpenGrip()
+				OpenGripLandscape()
+				Move.Loc(IR_approach,fast_motion)
+				Move.Loc(IR_above,slow_motion)
+				Move.Loc(IR_get,slow_motion)
+				Move.WaitForEOM
+				CloseGripLandscape()
+				Move.Loc(IR_above,slow_motion)
+				Move.Loc(IR_approach,slow_motion)
+				If barcode Then
+					' will not work while plate is in landscape orientation
+					'ReadBarcode()
+				End If
+				Move.Loc(change_grip_IR_above,fast_motion)
+				Move.Loc(change_grip_IR_get,slow_motion)
+				Move.WaitForEOM
+				OpenGripLandscape()
+				Move.Loc(change_grip_IR_above,fast_motion)
+				Move.WaitForEOM
+				Move.Loc(change_grip_Lh_above,fast_motion)
+				
+			Case "Th"
+				OpenGrip()
+				Move.Loc(Thermal_approach,fast_motion)
+				Move.Loc(Thermal_above,slow_motion)
+				Move.Loc(Thermal_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(Thermal_above,slow_motion)
+				Move.Loc(Thermal_approach,slow_motion)
+				If barcode Then
+					ReadBarcode()
+				End If
+				Move.Loc(change_grip_TH_above,fast_motion)
+				Move.Loc(change_grip_TH_get,slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				
+			Case "Ss"  'storage shell requires righty configuration
+				OpenGripFull()
+				LeftyToRighty()
+				Move.Loc(LPX_approach,fast_motion)
+				Move.Loc(LPX_above,fast_motion)
+				Move.Loc(LPX_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(LPX_above,slow_motion)
+				Move.Loc(LPX_approach,fast_motion)
+				RightyToLefty()
+				If barcode Then
+					ReadBarcode()
+				End If
+				Move.Loc(change_grip_LPX_above,fast_motion)
+				Move.Loc(change_grip_LPX_get,fast_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				
+			Case "Ph"   'photo_reactor requires righty configuration
+				OpenGrip()
+				LeftyToRighty()
+				Move.Loc(Photo_approach, fast_motion)
+				Move.Loc(Photo_above, slow_motion)
+				Move.Loc(Photo_get, slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(Photo_above, slow_motion)
+				Move.Loc(Photo_approach, slow_motion)
+				RightyToLefty()
+				If barcode Then
+					ReadBarcode()
+				End If
+				Move.Loc(change_grip_ph_above, fast_motion)
+				Move.Loc(change_grip_ph_get, slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+			
+			Case "ts"
+				OpenGrip()
+				Move.Loc(PFA_storage_approach(srceIdx), fast_motion)
+				Move.Loc(PFA_storage_get_tab(srceIdx), fast_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_storage_pull_tab(srceIdx), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_storage_get_body(srceIdx), slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_storage_approach(srceIdx), slow_motion)
+			
+			Case "tr"
+				OpenGripFull()
+				Move.Loc(PFA_load(0), fast_motion)
+				Move.Loc(PFA_load(1), slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_load(2), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_load(3), slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_load(0), slow_motion)
+				Move.WaitForEOM
+				
+			Case "Na"
+				Move.Loc(NMR_as(0), fast_motion)
+				Move.Loc(NMR_as(1), slow_motion)
+				Move.Loc(NMR_as(2), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_as(3), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_as(4), slow_motion)
+				Move.Loc(NMR_as(0), fast_motion)
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case "Nr"
+				Move.Loc(safe, fast_motion)
+				Move.Loc(NMR_rack_approach(srceIdx), fast_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_get(srceIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_above(srceIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_approach_hi(srceIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case "Nw"
+				OpenGripFull()
+				Move.Loc(NMR_plate_safe, fast_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_plate_get, fast_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(NMR_plate_above, slow_motion)
+				Move.Loc(NMR_plate_change_intermediate, slow_motion)
+				Move.Loc(NMR_plate_change_safe(srceIdx), slow_motion)
+				Move.Loc(NMR_plate_change_above(srceIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_plate_change_get(srceIdx), slow_motion)
+				OpenGripFull()
+				Move.Loc(NMR_plate_change_safe(srceIdx), fast_motion)
+				Move.Loc(NMR_plate_change_intermediate, fast_motion)
+				Move.WaitForEOM
+			
+			Case "Ng"
+				OpenGripFull()
+				Move.Loc(NMR_tool(0), fast_motion)
+				Move.Loc(NMR_tool(1), fast_motion)
+				Move.WaitForEOM
+				CloseGripNMRTool()
+				Move.Loc(NMR_tool(0), fast_motion)
+				Move.WaitForEOM
+			
+			Case "XX"
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case Else
+				'Throw an exception
+		End Select
+		
+		'Execute movements to bring the plate to the destination
+		Select dest
+			Case "Lh"
+				If destIdx = 7 Then
+					Move.Loc(NMR_plate_change_safe(0), fast_motion)
+					Move.WaitForEOM
+					Move.Loc(NMR_to_Lh(0), fast_motion)
+					Move.WaitForEOM
+					CloseGrip()
+					Dim iter1 As Integer
+					For iter1 = 1 To 5 Step 1
+						Move.Loc(NMR_to_Lh(iter1), slow_motion)
+						Move.WaitForEOM
+					Next iter1
+					OpenGrip()
+				Else
+					Move.Loc(change_grip_LH_get,slow_motion)
+					Move.WaitForEOM
+					CloseGrip()
+					Move.Loc(change_grip_LH_above,slow_motion)
+					Move.Loc(LH_approach(destIdx),fast_motion)
+					Move.Loc(LH_above(destIdx),slow_motion)
+					Move.Loc(LH_get(destIdx),slow_motion)
+					Move.WaitForEOM
+					OpenGrip()
+					Move.Loc(LH_above(destIdx),slow_motion)
+				End If
+				Move.Loc(LH_approach(destIdx),slow_motion)
+			
+			Case "as"
+				Move.Loc(change_grip_LC_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(change_grip_LC_above,slow_motion)
+				Move.Loc(HPLC_approach,fast_motion)
+				Move.Loc(HPLC_above,slow_motion)
+				Move.Loc(HPLC_get,slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				Move.Loc(HPLC_above,slow_motion)
+				Move.OneAxis(5, 101, False, fast_motion)
+				Move.WaitForEOM
+				Move.Loc(HPLC_above, slow_motion)
+				Move.Loc(HPLC_tamp_down,slow_motion)
+				Move.Loc(HPLC_above,slow_motion)
+				Move.Loc(HPLC_approach, slow_motion)
+				Move.Loc(safe_low, fast_motion)
+			
+			Case "fc"
+				Move.Loc(change_grip_FRC_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(change_grip_FRC_above,slow_motion)
+				LeftyToRighty()
+				Move.Loc(FRC_approach,fast_motion)
+				Move.Loc(FRC_above(destIdx),slow_motion)
+				Move.Loc(FRC_get(destIdx),slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				Move.Loc(FRC_above(destIdx),slow_motion)
+				Move.Loc(FRC_approach,fast_motion)
+				RightyToLefty()
+			
+			Case "Fs"
+				Move.Loc(change_grip_Lh_above,fast_motion)
+				OpenGripLandscape()
+				Move.Loc(change_grip_IR_above,fast_motion)
+				Move.Loc(change_grip_IR_get,slow_motion)
+				Move.WaitForEOM
+				CloseGripLandscape()
+				Move.Loc(change_grip_IR_above,slow_motion)
+				Move.Loc(IR_approach,fast_motion)
+				Move.Loc(IR_above,slow_motion)
+				Move.Loc(IR_get,slow_motion)
+				Move.WaitForEOM
+				OpenGripLandscape()
+				Move.Loc(IR_above,slow_motion)
+				Move.Loc(IR_approach,fast_motion)
+			
+			Case "Th"
+				Move.Loc(change_grip_TH_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(change_grip_TH_above,slow_motion)
+				Move.Loc(Thermal_approach,fast_motion)
+				Move.Loc(Thermal_above,slow_motion)
+				Move.Loc(Thermal_get,slow_motion)
+				Move.WaitForEOM
+				OpenGrip()
+				Move.Loc(Thermal_above,slow_motion)
+				Move.Loc(Thermal_approach,fast_motion)
+			
+			Case "Ss"
+				Move.Loc(change_grip_LPX_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(change_grip_LPX_above,slow_motion)
+				LeftyToRighty()
+				Move.Loc(LPX_approach,fast_motion)
+				Move.Loc(LPX_above,fast_motion)
+				Move.Loc(LPX_get,slow_motion)
+				OpenGripFull()
+				Move.Loc(LPX_above,slow_motion)
+				Move.Loc(LPX_approach,fast_motion)
+				RightyToLefty()
+				OpenGrip()
+			
+			Case "Ph"
+				Move.Loc(change_grip_ph_get,slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(change_grip_ph_above,slow_motion)
+				LeftyToRighty()
+				Move.Loc(Photo_approach,fast_motion)
+				Move.Loc(Photo_above,fast_motion)
+				Move.Loc(Photo_get,slow_motion)
+				OpenGrip()
+				Move.Loc(Photo_above,slow_motion)
+				Move.Loc(Photo_approach,fast_motion)
+				RightyToLefty()
+			
+			Case "ts"
+				Console.WriteLine(destIdx)
+				Move.Loc(PFA_storage_approach(destIdx), fast_motion)
+				Move.Loc(PFA_storage_get_body(destIdx), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_storage_pull_tab(destIdx), slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_storage_get_tab(destIdx), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_storage_approach(destIdx), fast_motion)
+				OpenGrip()
+				
+			Case "tr"
+				Move.Loc(PFA_load(0), fast_motion)
+				Move.Loc(PFA_load(3), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_load(2), slow_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(PFA_load(1), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(PFA_load(0), fast_motion)
+				OpenGrip()
+			
+			Case "Na"
+				Move.Loc(NMR_as(0), fast_motion)
+				Move.Loc(NMR_as(4), slow_motion)
+				Move.Loc(NMR_as(3), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_as(2), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_as(1), slow_motion)
+				Move.WaitForEOM
+			
+			Case "Nr"
+				Move.Loc(safe, fast_motion)
+				Move.Loc(NMR_rack_approach_hi(destIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_above(destIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_get(destIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(NMR_rack_approach(destIdx), slow_motion)
+				Move.WaitForEOM
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case "Nw"
+				Move.Loc(NMR_plate_change_safe(destIdx), fast_motion)
+				OpenGripFull()
+				Move.Loc(NMR_plate_change_get(destIdx), fast_motion)
+				Move.WaitForEOM
+				CloseGrip()
+				Move.Loc(NMR_plate_change_safe(destIdx), slow_motion)
+				Move.Loc(NMR_plate_change_intermediate, slow_motion)
+				Move.Loc(NMR_plate_above, slow_motion)
+				Move.Loc(NMR_plate_get, slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(NMR_plate_safe, fast_motion)
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case "Ng"
+				Move.Loc(NMR_tool(0), fast_motion)
+				Move.Loc(NMR_tool(1), slow_motion)
+				Move.WaitForEOM
+				OpenGripFull()
+				Move.Loc(NMR_tool(0), slow_motion)
+				Move.WaitForEOM
+			
+			Case "XX"
+				Move.Loc(safe, fast_motion)
+				Move.WaitForEOM
+			
+			Case Else
+				'Throw an exception
+		End Select
+		Move.WaitForEOM
+    End Sub 
+	
+	Public Sub CloseGrip()
+		Move.OneAxis(5, 110, False, slow_motion)
+		Move.WaitForEom
+	End Sub
+	
+	Public Sub OpenGrip()
+		Move.OneAxis(5, 117, False, slow_motion)
+		Move.WaitForEOM
+	End Sub
+	
+	Public Sub CloseGripLandscape()
+		Move.OneAxis(5, 121.5, False, slow_motion)
+		Move.WaitForEOM
+	End Sub
+	
+	Public Sub OpenGripLandscape()
+		Move.OneAxis(5, 131.5, False, slow_motion)
+		Move.WaitForEOM
+	End Sub
+	
+	Public Sub OpenGripFull()
+		Move.OneAxis(5, 140, False, slow_motion)
+		Move.WaitForEOM
+	End Sub
+	
+	Public Sub CloseGripNMRTool()
+		Move.OneAxis(5, 102.5, False, slow_motion)
+		Move.WaitForEOM
+	End Sub
+	
+	Public Sub RightyToLefty()
+		Move.Loc(lefty_righty(1),slow_motion)
+		Move.WaitForEOM
+		Move.OneAxis(2, 0, False, fast_motion)
+		Move.OneAxis(3, 140, False, fast_motion)
+		Move.OneAxis(4, -180, False, fast_motion)
+		Move.OneAxis(3, 240, False, fast_motion)
+		Move.OneAxis(4, -90, False, fast_motion)
+	End Sub
+	
+	Public Sub LeftyToRighty()
+		Move.Loc(lefty_righty(0),fast_motion)
+		Move.WaitForEOM
+		Move.OneAxis(2, 0, False, fast_motion)
+		Move.OneAxis(4, -180, False, fast_motion)
+		Move.OneAxis(3, 140, False, fast_motion)
+		Move.OneAxis(4, -90, False, fast_motion)
+		Move.WaitForEOM
+	End Sub	
+	
+	Public Sub ReadBarcode()
+		Move.Loc(safe, fast_motion)
+		Move.WaitForEOM
+		Move.Loc(barcode_read, fast_motion)
+		Move.WaitForEOM
+		Console.WriteLine("at barcode scan location")
+		Thread.Sleep(5000)
+		Console.WriteLine("Returning to regular movement")
+	End Sub
+	
+End Module

@@ -1,0 +1,57 @@
+DMSO dry contact DiTi 10	For 10µl LiHa disposable tips, for Air LiHa
+DMSO free dispense	General liquid class for most pipetting devices and tip types
+DMSO free dispense DiTi 50	For 50 ul disposable tips
+DMSO wet contact	For MCA96, MCA384 and Te-MO96
+DMSO wet contact DiTi 50	For 50µl LiHa disposable tips, for Air LiHa
+DMSO wet contact MC96 HP block	High Precision fixed tip block for MCA96 and Te-MO96
+DMSO wet contact MCA384 DiTi 125	Improve accuracy below 10ul for 125ul disposable Tips
+DMSO wet contact MCA384 DiTi 15	Improve accuracy below 2ul for 15ul Disposable Tips
+DMSO wet contact MCA384 DiTi 50	Improve accuracy below 2ul for 50ul Disposable Tips
+DMSO wet contact MCA384 large capacity tip block	Improved accuracy below 15 µl for the large capacity tip block
+Ethanol free dispense	General liquid class for the Liquid Handling Arm
+Ethanol free dispense 5ml DiTi	Liquid class for 5000ul Disposable Tips
+Ethanol free dispense DiTi 1000 Clear	Liquid class for Clear DiTi 1000 -> aspiration at z-max
+Ethanol free dispense DiTi 200 Clear	Liquid class for Clear DiTi 200 -> aspiration at z-max
+Ethanol free dispense DiTi 50	For 50µl LiHa disposable tips without filter, on Air LiHa
+Ethanol free dispense DiTi 50 Clear	Liquid class for Clear DiTi 50 -> aspiration at z-max
+Ethanol wet contact DiTi 50	For 50µl LiHa disposable tips without filter, on Air LiHa
+Master Mix free dispense DiTi 10	For 10 ul disposable tips
+Serum free dispense	General liquid class for the Liquid Handling Arm
+Serum free dispense 5ml DiTi	Liquid class for 5000ul Disposabel Tips
+Serum free dispense DiTi 1000	Improved accuracy below 200 µl for 1000 µl Disposable Tips
+Serum free dispense DiTi 1000 Clear	Liquid class for Clear DiTi 1000 -> aspiration at z-max
+Serum free dispense DiTi 1000 Wide Bore filter	Liquid Class for 1000 ul DiTi wide bore with filter
+Serum free dispense DiTi 200 Clear	Liquid class for Clear DiTi 200 -> aspiration at z-max
+Serum free dispense DiTi 350	For 350µl disposable tips from nested LiHa stack
+Serum free dispense PMPAir DiTi 1000	Pressure Monitored Pipetting for 1000 ul DiTi without filter
+Serum free dispense PMPAir DiTi 1000 filter	Pressure Monitored Pipetting for 1000 ul DiTi with filter
+Serum free dispense PMPAir DiTi 1000 Wide Bore filter	Pressure Monitored Pipetting using Tecan part no. 30115239
+Serum free dispense PMPAir DiTi 200	Pressure Monitored Pipetting for 200 ul DiTi without filter
+Serum free dispense PMPAir DiTi 350	Pressure Monitored Pipetting using Tecan part no. 10612555
+Serum wet contact DiTi 1000 Wide Bore filter	Liquid Class for 1000 ul DiTi wide bore with filter
+System Liquid free dispense	Aspirate and dispense System Liquid with the LiHa
+Water dry contact	For 10 and 50 ul DiTi in dry microplate
+Water dry contact High density plate	For Te-PS tips and 10 µl Disposable Tips in dry 1536 well plate
+Water free dispense	General liquid class for most pipetting devices and tip types
+Water free dispense 5ml DiTi	Liquid class for 5000ul Disposable Tips
+Water free dispense DiTi 10	For 10 ul disposable tips using 500 ul syringes
+Water free dispense DiTi 1000	Improved accuracy below 200 µl for 1000 µl Disposable Tips
+Water free dispense DiTi 1000 Clear	Liquid class for Clear DiTi 1000 -> aspiration at z-max
+Water free dispense DiTi 1000 Wide Bore filter	Liquid Class for 1000 ul DiTi wide bore with filter
+Water free dispense DiTi 200 Clear	Liquid class for Clear DiTi 200 -> aspiration at z-max
+Water free dispense DiTi 350	For 350µl disposable tips from nested LiHa stack
+Water free dispense DiTi 50	For 50 ul disposable tips without filter using 500 ul syringe
+Water free dispense DiTi 50 Clear	For 50 ul Clear disposable tips -> aspiration at z-max
+Water free dispense DiTi 50 filter	For 50 ul disposable tips with filter using 500 ul syringe
+Water free dispense MCA DiTi 500 	Water
+Water free dispense PMPAir DiTi 1000	Pressure Monitored Pipetting for 1000 ul DiTi without filter
+Water wet contact	General liquid class for most pipetting devices and tip types
+Water wet contact DiTi 50 	For 50 ul disposable tips
+Water wet contact MC96 HP block	High Precision fixed tip block for MCA96 and Te-MO96 
+Water wet contact MCA wide-bore	For wide bore MCA96 Disposable Tips
+Water wet contact MCA384 DiTi 125	Liquid class for all MCA384 DiTi
+Water wet contact MCA384 DiTi 15	Improve accuracy below 5ul for 15ul Disposable Tips
+Water wet contact MCA384 large capacity tip block	Improved accuracy below 15 µl for the large capacity tip block
+WRC step 1 Empty tips	For MCA96, MCA384 and Te-MO96 wash command
+WRC step 2 Dip in	For MCA96, MCA384 and Te-MO96 wash command
+WRC step 3 Blow out underwater	For MCA96, MCA384 and Te-MO96 wash command

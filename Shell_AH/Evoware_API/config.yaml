@@ -1,0 +1,16 @@
+paths/files:
+  carriers_labware_path: 'C:\Users\admin\PycharmProjects\AMD_Control_Platform\venv\Shell_AH\Evoware_API\evoware_library_files\carriers_and_labware.json'
+  empty_worktable_path: 'C:\Users\admin\PycharmProjects\AMD_Control_Platform\venv\Shell_AH\Evoware_API\evoware_worktables\20221018_current_layout.ewt'
+  schedule_testing_output_path: '.\schedules\testing\schedule_testing_%s.esc'
+  schedule_output_path: 'C:\Users\admin\Documents\amd_project_supporting_docs\schedules\%s'
+  liquid_detection_filepath: 'C:\Users\admin\PycharmProjects\AMD_Control_Platform\venv\Shell_AH\Evoware_API\process_scripts\liquid_detection\liquid_detection_results.txt'
+mongo_details:
+  mongo_address_testing: 'localhost'
+  mongo_port_testing: 27017
+  mongo_address: 'localhost'
+  mongo_port: 27017
+  mongo_user: 'username'
+  mongo_pass: 'password'
+startup:
+  testing: False
+  mongo_testing: True
